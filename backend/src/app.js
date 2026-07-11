@@ -13,8 +13,35 @@ import { errorHandler } from "./middleware/error.middleware.js";
 
 const app = express();
 
+const allowedOrigins = (env.corsOrigin || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 app.use(helmet());
-app.use(cors({ origin: env.corsOrigin, credentials: true }));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+
+      const normalizedOrigin = origin.replace(/\/$/, "");
+      const isAllowed = allowedOrigins.some(
+        (allowedOrigin) =>
+          normalizedOrigin === allowedOrigin.replace(/\/$/, ""),
+      );
+      const isLocalhost = /^http:\/\/localhost(:\d+)?$/.test(normalizedOrigin);
+
+      if (isAllowed || isLocalhost) {
+        callback(null, origin);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
