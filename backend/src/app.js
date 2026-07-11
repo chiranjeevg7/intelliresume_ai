@@ -19,6 +19,21 @@ app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
+app.get("/", (_req, res) =>
+  res.json({
+    success: true,
+    message: "IntelliResume AI API is running",
+    endpoints: [
+      "/api/health",
+      "/api/auth",
+      "/api/resumes",
+      "/api/analysis",
+      "/api/reports",
+      "/api/admin",
+    ],
+  }),
+);
+
 app.get("/api/health", (_req, res) =>
   res.json({ success: true, message: "IntelliResume AI API healthy" }),
 );
