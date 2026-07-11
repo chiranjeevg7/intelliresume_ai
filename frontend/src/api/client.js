@@ -1,16 +1,21 @@
 import axios from "axios";
 import { tokenStorage, userStorage } from "../utils/storage";
 
-const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+const rawBaseUrl =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 const normalizedBaseUrl = rawBaseUrl.endsWith("/api")
-  ? rawBaseUrl
-  : `${rawBaseUrl.replace(/\/$/, "")}/api`;
+  ? `${rawBaseUrl.replace(/\/$/, "")}/`
+  : `${rawBaseUrl.replace(/\/$/, "")}/api/`;
 
 const api = axios.create({
   baseURL: normalizedBaseUrl,
 });
 
 api.interceptors.request.use((config) => {
+  if (config.url?.startsWith("/")) {
+    config.url = config.url.slice(1);
+  }
+
   const token = tokenStorage.get();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
