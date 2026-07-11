@@ -1,8 +1,13 @@
 import axios from "axios";
 import { tokenStorage, userStorage } from "../utils/storage";
 
+const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+const normalizedBaseUrl = rawBaseUrl.endsWith("/api")
+  ? rawBaseUrl
+  : `${rawBaseUrl.replace(/\/$/, "")}/api`;
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api",
+  baseURL: normalizedBaseUrl,
 });
 
 api.interceptors.request.use((config) => {
